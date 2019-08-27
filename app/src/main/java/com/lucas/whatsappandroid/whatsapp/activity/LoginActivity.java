@@ -1,6 +1,10 @@
 package com.lucas.whatsappandroid.whatsapp.activity;
 
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.view.View;
@@ -10,6 +14,7 @@ import android.widget.EditText;
 import com.github.rtoshiro.util.format.SimpleMaskFormatter;
 import com.github.rtoshiro.util.format.text.MaskTextWatcher;
 import com.lucas.whatsappandroid.whatsapp.R;
+import com.lucas.whatsappandroid.whatsapp.helper.Permissao;
 import com.lucas.whatsappandroid.whatsapp.helper.Preferencias;
 
 import java.util.Random;
@@ -21,11 +26,18 @@ public class LoginActivity extends AppCompatActivity {
     private EditText codPais;
     private EditText codArea;
     private Button cadastrar;
+    private String[] permissoesNecessarias = new String[]{
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.INTERNET,
+            Manifest.permission.READ_PHONE_STATE
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        Permissao.validaPermissoes(1, this, permissoesNecessarias);
 
         nome        = (EditText) findViewById(R.id.edit_nome);
         telefone    = (EditText) findViewById(R.id.edit_telefone);
@@ -91,6 +103,38 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
             return false;
         }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        for (int resultado : grantResults) {
+
+            if (resultado == PackageManager.PERMISSION_DENIED) {
+                alertaValidacaoPermissao();
+            }
+
+        }
+
+    }
+
+    public void alertaValidacaoPermissao() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Permissões negadas");
+        builder.setMessage("Para utilizar esse app, é necessário aceitar as permissões");
+
+        builder.setPositiveButton("CONFIRMAR", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 }
