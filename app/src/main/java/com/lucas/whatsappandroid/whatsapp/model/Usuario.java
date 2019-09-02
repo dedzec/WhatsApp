@@ -1,5 +1,9 @@
 package com.lucas.whatsappandroid.whatsapp.model;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Exclude;
+import com.lucas.whatsappandroid.whatsapp.config.ConfiguracaoFirebase;
+
 public class Usuario {
 
     private String id;
@@ -11,9 +15,13 @@ public class Usuario {
 
     }
 
-    public String getId() {
-        return id;
+    public void salvar() {
+        DatabaseReference referenciaFirebase = ConfiguracaoFirebase.getFirebase();
+        referenciaFirebase.child("usuarios").child(getId()).setValue(this);
     }
+
+    @Exclude
+    public String getId() {return id; }
 
     public void setId(String id) {
         this.id = id;
@@ -35,6 +43,7 @@ public class Usuario {
         this.email = email;
     }
 
+    @Exclude
     public String getSenha() {
         return senha;
     }
